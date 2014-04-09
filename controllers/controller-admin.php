@@ -431,6 +431,9 @@ class TablePress_Admin_Controller extends TablePress_Controller {
 		$data = apply_filters( 'tablepress_view_data', $data, $action );
 
 		// prepare and initialize the view
+		if ($action == 'edit') {
+		  $action = 'editsccl';
+		}
 		$this->view = TablePress::load_view( $action, $data );
 	}
 
