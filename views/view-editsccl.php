@@ -36,6 +36,8 @@ class TablePress_Editsccl_View extends TablePress_Edit_View {
 	  
 	  if (!current_user_can('administrator')) {
 	    $this->remove_meta_box('table-information', 'normal');
+		$this->remove_meta_box( 'table-options', 'normal' );
+		$this->remove_meta_box( 'datatables-features', 'normal' );
 	  }
 	}
 
@@ -63,18 +65,18 @@ class TablePress_Editsccl_View extends TablePress_Edit_View {
 	 * @param array $box Information about the text box
 	 */
 	protected function action_nonce_field( array $data, array $box ) {
-	  // use custom nonce field here, that includes the table ID
-	  // instead of using $this->action use 'edit' to fool the controller later
-	  wp_nonce_field( TablePress::nonce( 'edit', $data['table']['id'] ), 'nonce-edit-table' ); echo "\n";
-	  wp_nonce_field( TablePress::nonce( 'preview_table', $data['table']['id'] ), 'nonce-preview-table', false, true );
+		// use custom nonce field here, that includes the table ID
+		// instead of using $this->action use 'edit' to fool the controller later
+		wp_nonce_field( TablePress::nonce( 'edit', $data['table']['id'] ), 'nonce-edit-table' ); echo "\n";
+		wp_nonce_field( TablePress::nonce( 'preview_table', $data['table']['id'] ), 'nonce-preview-table', false, true );
 	}
 
-        public function postbox_table_data($data, $box) {
-	  parent::postbox_table_data($data, $box);
+	public function postbox_table_data($data, $box) {
+		parent::postbox_table_data($data, $box);
 
-	  if (!current_user_can('administrator')) {
-	    $this->postbox_hidden_fields($data);
-	  }
+		if (!current_user_can('administrator')) {
+			$this->postbox_hidden_fields($data);
+		}
 	}
 
 	public function postbox_hidden_fields($data) {
