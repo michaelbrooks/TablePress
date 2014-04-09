@@ -32,8 +32,32 @@ class TablePress_Editsccl_View extends TablePress_Edit_View {
 	 * @param array $data Data for this view
 	 */
 	public function setup( $action, array $data ) {
-		parent::setup( $action, $data );
+	  parent::setup( $action, $data );
+	  
+	  if (!current_user_can('administrator')) {
+	    $this->remove_meta_box('table-information', 'normal');
+	  }
 	}
 
+	/**
+	 * Register a post meta box for the view, that is drag/droppable with WordPress functionality
+	 *
+	 * @since 1.0.0
+	 * @uses add_meta_box()
+	 *
+	 * @param string $id Unique ID for the meta box
+	 * @param string $title Title for the meta box
+	 * @param string $context (optional) Context/position of the post meta box (normal, side, additional)
+	 */
+	protected function remove_meta_box( $id, $context = 'normal') {
+	  remove_meta_box( "tablepress_{$this->action}-{$id}", null, $context);
+	}
+
+
+	public function postbox_table_information( $data, $box ) {
+?>
+asdf
+<?php
+        }
 
 } // class TablePress_Editsccl_View
