@@ -19,6 +19,7 @@ Text Domain: tablepress
 Domain Path: /i18n
 License: GPL 2
 Donate URI: http://tablepress.org/donate/
+GitHub Plugin URI: https://github.com/michaelbrooks/tablepress
 */
 
 /*	Copyright 2012-2014 Tobias Bäthge
