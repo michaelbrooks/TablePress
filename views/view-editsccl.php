@@ -78,6 +78,46 @@ class TablePress_Editsccl_View extends TablePress_Edit_View {
 			$this->postbox_hidden_fields($data);
 		}
 	}
+	
+	/**
+	 * Print the content of the "Table Manipulation" post meta box
+	 *
+	 * @since 1.0.0
+	 */
+	public function postbox_table_manipulation( $data, $box ) {
+		//Only admins get the full manipulation box
+		//Everyone else just gets cell content features, no structural changes.
+		if (current_user_can('administrator')) {
+			parent::postbox_table_manipulation($data, $box);
+		} else {
+			$media_library_url = esc_url( add_query_arg( array( 'post_id' => '0', 'type' => 'image', 'tab' => 'library' ), admin_url( 'media-upload.php' ) ) );
+?>
+<table class="tablepress-postbox-table fixed hide-if-no-js">
+<tbody>
+	<tr class="bottom-border">
+		<td class="column-1">
+			<?php printf( __( 'Add %s row(s)', 'tablepress' ), '<input type="number" id="rows-append-number" class="small-text numbers-only" title="' . esc_attr__( 'This field must contain a positive number.', 'tablepress' ) . '" value="1" min="1" max="99999" maxlength="5" required />' ); ?>&nbsp;<input type="button" class="button" id="rows-append" value="<?php esc_attr_e( 'Add', 'tablepress' ); ?>" />
+		</td>
+		<td class="column-2">
+			<?php _e( 'Selected rows', 'tablepress' ); ?>:&nbsp;
+			<input type="button" class="button" id="rows-duplicate" value="<?php esc_attr_e( 'Duplicate', 'tablepress' ); ?>" />
+			<input type="button" class="button" id="rows-insert" value="<?php esc_attr_e( 'Insert', 'tablepress' ); ?>" />
+			<input type="button" class="button" id="rows-remove" value="<?php esc_attr_e( 'Delete', 'tablepress' ); ?>" />
+		</td>
+	</tr>
+	<tr>
+		<td class="column-2" colspan=2>
+			<?php _e( 'Edit cell', 'tablepress' ); ?>:&nbsp;
+			<input type="button" class="button" id="link-add" value="<?php esc_attr_e( 'Insert Link', 'tablepress' ); ?>" />
+			<a href="<?php echo $media_library_url; ?>" class="button" id="image-add"><?php _e( 'Insert Image', 'tablepress' ); ?></a>
+			<input type="button" class="button" id="advanced-editor-open" value="<?php esc_attr_e( 'Advanced Editor', 'tablepress' ); ?>" />
+		</td>
+	</tr>
+</table>
+<p class="hide-if-js"><?php _e( 'To use the Table Manipulation features, JavaScript needs to be enabled in your browser.', 'tablepress' ); ?></p>
+<?php
+		}
+	}
 
 	public function postbox_hidden_fields($data) {
 ?>
