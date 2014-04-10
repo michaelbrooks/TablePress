@@ -687,6 +687,7 @@ class TablePress_Render {
 		$output .= "\n<table{$table_attributes}>\n";
 		$output .= $caption . $colgroup . $thead . $tfoot . $tbody;
 		$output .= "</table>\n";
+		$output .= '<p class="tablepress-last-modified">Last modified: <strong>' . TablePress::format_datetime( $this->table['last_modified'] ) . "</strong></p>\n";
 
 		// name/description below table (HTML already generated above)
 		if ( $this->render_options['print_name'] && 'below' == $this->render_options['print_name_position'] ) {
