@@ -70,10 +70,117 @@ class TablePress_Editsccl_View extends TablePress_Edit_View {
 		wp_nonce_field( TablePress::nonce( 'edit', $data['table']['id'] ), 'nonce-edit-table' ); echo "\n";
 		wp_nonce_field( TablePress::nonce( 'preview_table', $data['table']['id'] ), 'nonce-preview-table', false, true );
 	}
+	
+	/**
+	 * Print the content of the "Table Content" post meta box
+	 *
+	 * @since 1.0.0
+	 */
+	public function postbox_table_data( $data, $box ) {
+		$table = $data['table']['data'];
+		$options = $data['table']['options'];
+		$visibility = $data['table']['visibility'];
+		$rows = count( $table );
+		$columns = count( $table[0] );
 
-	public function postbox_table_data($data, $box) {
-		parent::postbox_table_data($data, $box);
+		$head_row_idx = $foot_row_idx = -1;
+		// determine row index of the table head row, by excluding all hidden rows from the beginning
+		if ( $options['table_head'] ) {
+			for ( $row_idx = 0; $row_idx < $rows; $row_idx++ ) {
+				if ( 1 === $visibility['rows'][ $row_idx ] ) {
+					$head_row_idx = $row_idx;
+					break;
+				}
+			}
+		}
+		// determine row index of the table foot row, by excluding all hidden rows from the end
+		if ( $options['table_foot'] ) {
+			for ( $row_idx = $rows - 1; $row_idx > -1; $row_idx-- ) {
+				if ( 1 === $visibility['rows'][ $row_idx ] ) {
+					$foot_row_idx = $row_idx;
+					break;
+				}
+			}
+		}
+?>
+<table id="edit-form" class="tablepress-edit-screen-id-<?php echo esc_attr( $data['table']['id'] ); ?>">
+	<thead>
+		<tr id="edit-form-head">
+			<th></th>
+			<th></th>
+<?php
+	for ( $col_idx = 0; $col_idx < $columns; $col_idx++ ) {
+		$column_class = '';
+		if ( 0 === $visibility['columns'][ $col_idx ] ) {
+			$column_class = ' column-hidden';
+		}
+		$column = TablePress::number_to_letter( $col_idx + 1 );
+		echo "\t\t\t<th class=\"head{$column_class}\"><span class=\"sort-control sort-desc hide-if-no-js\" title=\"" . esc_attr__( 'Sort descending', 'tablepress' ) . "\"><span class=\"sorting-indicator\"></span></span><span class=\"sort-control sort-asc hide-if-no-js\" title=\"" . esc_attr__( 'Sort ascending', 'tablepress' ) . "\"><span class=\"sorting-indicator\"></span></span><span class=\"move-handle\">{$column}</span></th>\n";
+	}
+?>
+			<th></th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr id="edit-form-foot">
+			<th></th>
+			<th></th>
+<?php
+	for ( $col_idx = 0; $col_idx < $columns; $col_idx++ ) {
+		$column_class = '';
+		if ( 0 === $visibility['columns'][ $col_idx ] ) {
+			$column_class = ' class="column-hidden"';
+		}
+		echo "\t\t\t<th{$column_class}><input type=\"checkbox\" class=\"hide-if-no-js\" />";
+		echo "<input type=\"hidden\" class=\"visibility\" name=\"table[visibility][columns][]\" value=\"{$visibility['columns'][ $col_idx ]}\" /></th>\n";
+	}
+?>
+			<th></th>
+		</tr>
+	</tfoot>
+	<tbody id="edit-form-body">
+<?php
 
+	foreach ( $table as $row_idx => $row_data ) {
+		$row = $row_idx + 1;
+		$classes = array();
+		$row_input_attrs = '';
+		if ( $row_idx % 2 == 0 ) {
+			$classes[] = 'odd';
+		}
+		if ( $head_row_idx == $row_idx ) {
+			$classes[] = 'head-row';
+			if (!current_user_can('administrator')) {
+				$row_input_attrs = ' readonly="readonly" ';
+			}
+		} elseif ( $foot_row_idx == $row_idx ) {
+			$classes[] = 'foot-row';
+		}
+		if ( 0 === $visibility['rows'][ $row_idx ] ) {
+			$classes[] = 'row-hidden';
+		}
+		$row_class = ( ! empty( $classes ) ) ? ' class="' . implode( ' ', $classes ) . '"' : '';
+		echo "\t\t<tr{$row_class}>\n";
+		echo "\t\t\t<td><span class=\"move-handle\">{$row}</span></td>";
+		echo "<td><input type=\"checkbox\" class=\"hide-if-no-js\" /><input type=\"hidden\" class=\"visibility\" name=\"table[visibility][rows][]\" value=\"{$visibility['rows'][ $row_idx ]}\" /></td>";
+		foreach ( $row_data as $col_idx => $cell ) {
+			$column = TablePress::number_to_letter( $col_idx + 1 );
+			$column_class = '';
+			if ( 0 === $visibility['columns'][ $col_idx ] ) {
+				$column_class = ' class="column-hidden"';
+			}
+			$cell = esc_textarea( $cell ); // sanitize, so that HTML is possible in table cells
+			echo "<td{$column_class}><textarea name=\"table[data][{$row_idx}][{$col_idx}]\" id=\"cell-{$column}{$row}\" rows=\"1\" {$row_input_attrs}>{$cell}</textarea></td>";
+		}
+		echo "<td><span class=\"move-handle\">{$row}</span></td>\n";
+		echo "\t\t</tr>\n";
+	}
+?>
+	</tbody>
+</table>
+<input type="hidden" id="number-rows" name="table[number][rows]" value="<?php echo $rows; ?>" />
+<input type="hidden" id="number-columns" name="table[number][columns]" value="<?php echo $columns; ?>" />
+<?php
 		if (!current_user_can('administrator')) {
 			$this->postbox_hidden_fields($data);
 		}
